@@ -13,6 +13,8 @@ import matplotlib.ticker as mtick
 df = pd.read_csv('AmendedData\\PageTimes_Over50PVs.csv', index_col=0)
 
 df.index = df.index.str.replace('www.redcross.org.uk/stories', '')
+df.index = df.index.str.replace('/.*/', '/')
+df = df[df.index.str.contains('corona') | df.index.str.contains('nhs')]
 
 #bigappeal = df.groupby('appeal').sum().sort_values(by='users', ascending=False)
 #bigappeal = bigappeal[bigappeal['users'] > 1000]
@@ -42,7 +44,7 @@ for i in cumsum.columns:
 
 mins_to_x = lambda mins: (mins - 30) / 30
 # Test
-page_df.plot.bar(color='#ee2a24')
+page_df.plot.bar(color='#ee2a24')               
 plt.axvline(x=mins_to_x(60))
 plt.axvline(x=mins_to_x(90))
 plt.axvline(x=mins_to_x(420))
@@ -57,11 +59,11 @@ def add_annotate_line(text, mins, ax, color='#000000'):
                 color=color)
 
 
-fig, ax = plt.subplots(1, 1)
-for page in [df.index[0]]:
+figs, axs = plt.subplots(2, 3, figsize=(15, 10))
+for (ax, page) in zip(axs.flatten(), df.index):
     page_df = df.loc[page, time_ints]
     views = df.loc[page, "Unique Pageviews"]
-    page_df.plot.bar(color='#ee2a24', ax=ax)
+    page_df.plot.bar(color='#f1b13b', ax=ax)
     ymax = ax.get_ylim()[1]
     ax.set_ylim((0, ymax))
     time_counts = page_df.values
@@ -77,6 +79,9 @@ for page in [df.index[0]]:
             avg_median = i
             break
     add_annotate_line('Median', avg_median, ax, color='#158aba')
+    ax.set_title(page, fontsize=10)
+axs[-1, -1].axis('off')
+plt.savefig('Outputs\\TimeDistvsAvgTime.png')
 
 #for platform in payment_types:
 #    by_month = pd.DataFrame(index=months)
