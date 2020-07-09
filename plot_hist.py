@@ -22,8 +22,9 @@ df = df[df.index.str.contains('corona') | df.index.str.contains('nhs')]
 #df[['formpage', 'payment']].drop_duplicates().sort_values(by='payment')
 #df.to_csv('AmendedData\\FormFunnel.csv')
 
-df.filter(regex=("\d{2}m \d{2}s"))
+# df.filter(regex=("\d{2}m \d{2}s"))
 
+time_minsecs = df.columns[-20:]
 time_ints = [30*i for i in range(1, 20+1)]
 new_cols = list(df.columns[:len(df.columns)-20]) + time_ints
 print(new_cols)
@@ -55,8 +56,8 @@ def add_annotate_line(text, mins, ax, color='#000000'):
     """Add a vertical line at xy, annotated with the text."""
     ymax = ax.get_ylim()[1]
     ax.axvline(x=mins_to_x(mins), color=color)
-    ax.annotate(text, (mins_to_x(mins)+0.1, ymax-1), rotation=90, ha='right',
-                color=color)
+    ax.annotate(text, (mins_to_x(mins)+0.1, ymax-ymax/10), rotation=90,
+                ha='right', color=color)
 
 
 figs, axs = plt.subplots(2, 3, figsize=(15, 10))
@@ -80,7 +81,11 @@ for (ax, page) in zip(axs.flatten(), df.index):
             break
     add_annotate_line('Median', avg_median, ax, color='#158aba')
     ax.set_title(page, fontsize=10)
+    ax.set_xticklabels(time_minsecs)
+axs[0, 0].set_ylabel('Users')
+axs[1, 0].set_ylabel('Users')
 axs[-1, -1].axis('off')
+plt.tight_layout()
 plt.savefig('Outputs\\TimeDistvsAvgTime.png')
 
 #for platform in payment_types:
