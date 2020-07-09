@@ -46,19 +46,29 @@ page_df.plot.bar(color='#ee2a24')
 plt.axvline(x=mins_to_x(60))
 plt.axvline(x=mins_to_x(90))
 plt.axvline(x=mins_to_x(420))
+plt.ylim()[1]
+
+
+def add_annotate_line(text, mins, ax, color='#000000'):
+    """Add a vertical line at xy, annotated with the text."""
+    ymax = ax.get_ylim()[1]
+    ax.axvline(x=mins_to_x(mins), color=color)
+    ax.annotate(text, (mins_to_x(mins)+0.1, ymax-1), rotation=90, ha='right',
+                color=color)
+
 
 fig, ax = plt.subplots(1, 1)
 for page in [df.index[0]]:
     page_df = df.loc[page, time_ints]
     views = df.loc[page, "Unique Pageviews"]
     page_df.plot.bar(color='#ee2a24', ax=ax)
+    ymax = ax.get_ylim()[1]
+    ax.set_ylim((0, ymax))
     time_counts = page_df.values
     avg_capped = np.dot(time_ints, time_counts) / views
-    ax.axvline(x=mins_to_x(avg_capped))
-    ax.annotate('Mean (capped)', (mins_to_x(avg_capped)+0.1, 40), rotation=90)
-    plt.axvline(avg_capped, color='#1d1a1c')
+    add_annotate_line('Mean (capped)', avg_capped, ax, color='#158aba')
     avg_default = df.loc[page, "Avg time on page"]
-    ax.axvline(x=mins_to_x(avg_default))
+    add_annotate_line('"Avg time on page"', avg_default, ax, color='#1a3351')
     cumsum = page_df.cumsum()
     median_person = cumsum.iloc[-1] / 2
     avg_median = 0
@@ -66,8 +76,8 @@ for page in [df.index[0]]:
         if cumsum.loc[i] > median_person:
             avg_median = i
             break
-    ax.axvline(x=mins_to_x(avg_median))
-#
+    add_annotate_line('Median', avg_median, ax, color='#158aba')
+
 #for platform in payment_types:
 #    by_month = pd.DataFrame(index=months)
 #    for appeal in bigappeal.index:
